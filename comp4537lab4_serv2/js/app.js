@@ -1,9 +1,8 @@
 const http = require('http');
 const url = require('url');
-const querystring = require('querystring');
 
 let dictionary = [];
-let totalRequests = 0; 
+let totalRequests = 0;
 
 function handleGETRequest(req, res) {
     const parsedUrl = url.parse(req.url, true);
@@ -15,25 +14,23 @@ function handleGETRequest(req, res) {
         if (result) {
             totalRequests++;
             res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-            res.end(JSON.stringify({ 
+            res.end(JSON.stringify({
                 word: result.word,
                 definition: result.definition,
                 requestNumber: result.requestNumber,
-                totalEntries: dictionary.length, 
-                totalRequests: totalRequests 
+                totalEntries: dictionary.length,
+                totalRequests: totalRequests
             }));
         } else {
             res.writeHead(404, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
             res.end(`Word '${term}' not found.`);
         }
     } else {
-        // Handle other endpoints
         res.writeHead(404, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
         res.end('Endpoint not found.');
     }
 }
 
-// Function to handle POST requests
 function handlePOSTRequest(req, res) {
     let body = '';
     req.on('data', (chunk) => {
@@ -53,10 +50,10 @@ function handlePOSTRequest(req, res) {
                     res.writeHead(400, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
                     res.end('Word already exists in the dictionary.');
                 } else {
-                    const requestNumber = totalRequests; // Use totalRequests as request number
+                    const requestNumber = totalRequests;
                     dictionary.push({ word, definition, requestNumber });
                     res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-                    res.end(JSON.stringify({ 
+                    res.end(JSON.stringify({
                         definition: definition,
                         totalRequests: totalRequests,
                         totalEntries: dictionary.length
@@ -98,6 +95,11 @@ const server = http.createServer((req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+
+server.listen(PORT, (err) => {
+    if (err) {
+        console.error('Error starting server:', err);
+    } else {
+        console.log(`Server is running on port ${PORT}`);
+    }
 });
