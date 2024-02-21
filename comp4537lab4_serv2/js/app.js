@@ -1,5 +1,6 @@
 const http = require('http');
 const url = require('url');
+const userStrings = require('../lang/en/user');
 
 let dictionary = [];
 let totalRequests = 0;
@@ -23,11 +24,11 @@ function handleGETRequest(req, res) {
             }));
         } else {
             res.writeHead(404, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
-            res.end(`Word '${term}' not found.`);
+            res.end(userStrings.notFound.replace('{term}', term));
         }
     } else {
         res.writeHead(404, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
-        res.end('Endpoint not found.');
+        res.end(userStrings.endpointNotFound);
     }
 }
 
@@ -47,12 +48,12 @@ function handlePOSTRequest(req, res) {
                 totalRequests++;
                 const existingWordIndex = dictionary.findIndex(entry => entry.word === word);
                 if (existingWordIndex !== -1) {
-                    res.writeHead(400, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
-                    res.end('Word already exists in the dictionary.');
+                    res.writeHead(400, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*'});
+                    res.end(userStrings.wordExists);
                 } else {
                     const requestNumber = totalRequests;
                     dictionary.push({ word, definition, requestNumber });
-                    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+                    res.writeHead(200, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'});
                     res.end(JSON.stringify({
                         definition: definition,
                         totalRequests: totalRequests,
@@ -60,13 +61,13 @@ function handlePOSTRequest(req, res) {
                     }));
                 }
             } else {
-                res.writeHead(400, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
-                res.end('Invalid data. Both word and definition are required.');
+                res.writeHead(400, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*'});
+                res.end(userStrings.invalidData);
             }
         } catch (error) {
             console.error('Error parsing JSON:', error);
-            res.writeHead(400, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
-            res.end('Invalid JSON data.');
+            res.writeHead(400, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*'});
+            res.end(userStrings.invalidJSON);
         }
     });
 }
@@ -89,7 +90,7 @@ const server = http.createServer((req, res) => {
     } else if (method === 'OPTIONS') {
         handleOptionsRequest(req, res);
     } else {
-        res.writeHead(405, { 'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*' });
+        res.writeHead(405, {'Content-Type': 'text/plain', 'Access-Control-Allow-Origin': '*'});
         res.end('Method not allowed.');
     }
 });
